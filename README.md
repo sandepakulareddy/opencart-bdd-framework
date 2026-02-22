@@ -1,345 +1,119 @@
-# 🛒 OpenCart BDD Framework
+# OpenCart BDD Framework
 
-A comprehensive **Behavior-Driven Development (BDD)** test automation framework for the OpenCart e-commerce platform. This framework leverages **Selenium WebDriver, Cucumber, TestNG, and Java** to provide automated functional testing with maintainability, scalability, and CI/CD integration.
+Python-based test automation framework that combines:
+- UI test flow for OpenCart demo site using Selenium + `pytest-bdd`
+- API CRUD/negative testing for Swagger Petstore using `requests` + `pytest`
 
----
+## Tech Stack
 
-## 📋 Table of Contents
+- Python 3.10+
+- pytest
+- pytest-bdd
+- Selenium WebDriver
+- requests
 
-* Overview
-* Project Structure
-* Prerequisites
-* Installation
-* Configuration
-* Running Tests
-* Writing Test Scenarios
-* Reporting
-* Best Practices
-* Troubleshooting
-* Contributing
-* License
-* Contact & Support
+## Project Structure
 
----
-
-## 📖 Overview
-
-This framework follows:
-
-* ✅ Page Object Model (POM)
-* ✅ BDD with Cucumber (Gherkin syntax)
-* ✅ Maven build management
-* ✅ TestNG execution support
-* ✅ Parallel execution capability
-* ✅ Screenshot capture on failure
-* ✅ Logging with Log4j2
-* ✅ Extent & Cucumber HTML Reporting
-
-Designed for real-world enterprise automation projects.
-
----
-
-## 🏗️ Project Structure
-
-```
+```text
 opencart-bdd-framework/
-│
-├── src/
-│   ├── main/java/
-│   │   ├── pages/
-│   │   │   ├── LoginPage.java
-│   │   │   ├── ProductPage.java
-│   │   │   ├── CartPage.java
-│   │   │   └── CheckoutPage.java
-│   │   │
-│   │   ├── utils/
-│   │   │   ├── DriverFactory.java
-│   │   │   ├── WaitUtils.java
-│   │   │   ├── ScreenshotUtils.java
-│   │   │   └── ConfigReader.java
-│   │   │
-│   │   └── constants/
-│   │       └── Constants.java
-│   │
-│   └── test/java/
-│       ├── stepdefinitions/
-│       │   ├── LoginSteps.java
-│       │   ├── ProductSteps.java
-│       │   ├── CartSteps.java
-│       │   └── CheckoutSteps.java
-│       │
-│       ├── runners/
-│       │   ├── TestRunner.java
-│       │   └── ParallelRunner.java
-│       │
-│       └── hooks/
-│           └── Hooks.java
-│
-├── src/test/resources/
-│   ├── features/
-│   │   ├── login.feature
-│   │   ├── shopping.feature
-│   │   └── checkout.feature
-│   │
-│   ├── config.properties
-│   └── log4j2.xml
-│
-├── drivers/
-├── logs/
-├── screenshots/
-├── reports/
-├── pom.xml
-├── testng.xml
-├── README.md
-└── .gitignore
+|-- features/
+|   `-- checkout.feature
+|-- pages/
+|   |-- base_page.py
+|   |-- home_page.py
+|   |-- cart_page.py
+|   `-- checkout_page.py
+|-- tests/
+|   |-- test_checkout_steps.py
+|   |-- test_pet_crud.py
+|   `-- test_negative_cases.py
+|-- utils/
+|   |-- api_client.py
+|   `-- config.py
+|-- conftest.py
+|-- requirements.txt
+`-- README.md
 ```
 
----
+## What Is Covered
 
-## 🔧 Prerequisites
+### UI BDD Scenario
 
-* Java 8+
-* Maven 3.6+
-* Git
-* Chrome/Firefox Browser
-* ChromeDriver / GeckoDriver (or WebDriverManager)
+Feature file: `features/checkout.feature`
 
----
+Flow covered:
+1. Open OpenCart demo home page
+2. Select product (`MacBook`)
+3. Add product to cart
+4. Proceed to checkout
 
-## 📦 Installation
+### API Tests
 
-### 1️⃣ Clone the Repository
+API client: `utils/api_client.py`
+Base URL: `https://petstore.swagger.io/v2`
 
-```bash
-git clone https://github.com/sandepakulareddy/opencart-bdd-framework.git
-cd opencart-bdd-framework
+Covered API validations:
+- Create, read, update, delete pet (`tests/test_pet_crud.py`)
+- Negative scenarios for non-existing/invalid data (`tests/test_negative_cases.py`)
+
+## Setup
+
+1. Create and activate a virtual environment
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 ```
 
-### 2️⃣ Install Dependencies
+2. Install dependencies
 
-```bash
-mvn clean install
+```powershell
+pip install -r requirements.txt
 ```
 
-### 3️⃣ WebDriver Setup
+## Run Tests
 
-Place WebDriver executables inside `drivers/` folder
+### Run all tests
 
-OR use WebDriverManager dependency in `pom.xml`:
-
-```xml
-<dependency>
-    <groupId>io.github.bonigarcia</groupId>
-    <artifactId>webdrivermanager</artifactId>
-    <version>5.6.2</version>
-</dependency>
+```powershell
+pytest -v
 ```
 
----
+### Run only UI BDD tests
 
-## ⚙️ Configuration
-
-Update `src/test/resources/config.properties`
-
-```properties
-# Application URL
-app.url=https://opencart.demo.opencart.com
-
-# Browser Settings
-browser=chrome
-headless.mode=false
-implicit.wait=10
-explicit.wait=20
-
-# Screenshot Settings
-screenshot.on.failure=true
-screenshot.path=screenshots/
-
-# Reporting
-report.path=reports/
+```powershell
+pytest tests/test_checkout_steps.py -v
 ```
 
----
+### Run only API tests
 
-## 🚀 Running Tests
-
-### ▶ Run All Tests
-
-```bash
-mvn clean test
+```powershell
+pytest tests/test_pet_crud.py tests/test_negative_cases.py -v
 ```
 
-### ▶ Run Specific Feature
+### Run tests on a specific browser
 
-```bash
-mvn test -Dcucumber.options="src/test/resources/features/login.feature"
+Supported via `conftest.py`: `chrome`, `firefox`, `edge`
+
+```powershell
+pytest tests/test_checkout_steps.py --browser chrome -v
 ```
 
-### ▶ Run with Tag
+## Notes
 
-```bash
-mvn test -Dcucumber.options="--tags @smoke"
-```
+- UI tests require a locally available browser driver (`chromedriver`, `geckodriver`, or `msedgedriver`) accessible on your system PATH.
+- UI scenario uses `https://tutorialsninja.com/demo/`.
+- API tests hit a public demo service; occasional external instability can affect results.
 
-### ▶ Run in Parallel
+## Troubleshooting
 
-```bash
-mvn test -Dparallel=true -DthreadCount=4
-```
+- `Browser not supported`: pass one of `--browser chrome|firefox|edge`
+- `WebDriver` errors: ensure matching browser/driver versions and PATH setup
+- API failures with 5xx/timeout: retry later; public sandbox service may be unstable
 
-### ▶ Run Headless
+## Future Improvements
 
-```bash
-mvn test -Dheadless=true
-```
-
----
-
-## ✍️ Writing Test Scenarios
-
-### Example Feature File
-
-```gherkin
-Feature: User Login Functionality
-
-  Background:
-    Given User navigates to the application
-
-  @smoke @regression
-  Scenario: Successful login with valid credentials
-    When User enters email "user@example.com"
-    And User enters password "password123"
-    And User clicks the login button
-    Then User should be redirected to dashboard
-```
-
----
-
-### Example Step Definition
-
-```java
-public class LoginSteps {
-
-    private WebDriver driver;
-    private LoginPage loginPage;
-
-    @Given("User navigates to the application")
-    public void navigateToApp() {
-        driver = DriverFactory.getDriver();
-        loginPage = new LoginPage(driver);
-        driver.get(ConfigReader.get("app.url"));
-    }
-}
-```
-
----
-
-### Example Page Object
-
-```java
-public class LoginPage {
-
-    private WebDriver driver;
-
-    @FindBy(id = "email")
-    private WebElement emailField;
-
-    @FindBy(id = "password")
-    private WebElement passwordField;
-
-    @FindBy(xpath = "//button[@type='submit']")
-    private WebElement loginButton;
-
-    public LoginPage(WebDriver driver) {
-        this.driver = driver;
-        PageFactory.initElements(driver, this);
-    }
-}
-```
-
----
-
-## 📊 Reporting
-
-### Extent Report
-
-Generated at:
-
-```
-reports/index.html
-```
-
-Includes:
-
-* Execution summary
-* Pass/Fail statistics
-* Screenshots for failed tests
-* Logs with timestamps
-* System & browser details
-
-### Cucumber HTML Report
-
-```
-target/cucumber-reports/
-```
-
----
-
-## 🎯 Best Practices
-
-* Write business-readable scenarios
-* Keep steps reusable
-* Avoid hardcoding values
-* Use configuration files
-* Follow POM design pattern
-* Use explicit waits (avoid Thread.sleep)
-* Tag tests properly (@smoke, @regression)
-* Maintain reports for analysis
-
----
-
-## 🔍 Troubleshooting
-
-### WebDriver Not Found
-
-* Ensure drivers exist in `drivers/`
-* Or use WebDriverManager
-
-### Tests Timeout
-
-* Increase waits in config.properties
-* Check application performance
-
-### Screenshot Issues
-
-* Verify screenshot directory exists
-* Ensure write permissions
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create feature branch
-3. Commit changes
-4. Push branch
-5. Open Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-## 📧 Contact & Support
-
-For support:
-
-* Open a GitHub issue
-* GitHub Profile: [https://github.com/sandepakulareddy](https://github.com/sandepakulareddy)
-
----
-
-⭐ If you find this framework useful, consider giving it a star!
+- Add environment-based config (`.env` or config file) for UI/API endpoints
+- Add HTML/JUnit reports in CI
+- Add explicit assertions for checkout page verification step in BDD flow
+- Add test data management for stable API IDs
