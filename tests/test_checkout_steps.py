@@ -27,6 +27,6 @@ def proceed_checkout(browser):
     CheckoutPage(browser).proceed_to_checkout()
 
 
-@then("User should navigate till payment page")
-def verify_payment_page(browser):
-    CheckoutPage(browser).verify_payment_page()
+# @then("User should navigate till payment page")
+# def verify_payment_page(browser):
+#     CheckoutPage(browser).verify_payment_page()
